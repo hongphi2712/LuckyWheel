@@ -1,0 +1,437 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="mb-0">Edit Campaign</h2>
+  <a href="/admin/campaigns" class="btn btn-outline-primary">
+    <i class="fas fa-arrow-left me-2"></i>Back to Campaigns
+  </a>
+</div>
+
+<% if (typeof error_msg !== 'undefined' && error_msg.length > 0) { %>
+  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <%= error_msg %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+<% } %>
+<% if (typeof success_msg !== 'undefined' && success_msg.length > 0) { %>
+  <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <%= success_msg %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+<% } %>
+
+<div class="card border-0 shadow">
+  <div class="card-body p-4">
+    <form action="/admin/campaigns/edit/<%= campaign._id %>?_method=PUT" method="POST" id="campaignForm">
+      <div class="row mb-4">
+        <div class="col-md-6 mb-3 mb-md-0">
+          <div class="form-group">
+            <label for="name" class="form-label">Campaign Name</label>
+            <input type="text" class="form-control" id="name" name="name" value="<%= campaign.title || '' %>" required>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="status" class="form-label">Status</label>
+            <select class="form-select" id="status" name="status" required>
+              <option value="draft" <%= campaign.status === 'draft' ? 'selected' : '' %>>Draft</option>
+              <option value="active" <%= campaign.status === 'active' ? 'selected' : '' %>>Active</option>
+              <option value="ended" <%= campaign.status === 'ended' ? 'selected' : '' %>>Ended</option>
+              <option value="inactive" <%= campaign.status === 'inactive' ? 'selected' : '' %>>Inactive</option>
+              <option value="completed" <%= campaign.status === 'completed' ? 'selected' : '' %>>Completed</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-group mb-4">
+        <label for="description" class="form-label">Description</label>
+        <textarea class="form-control" id="description" name="description" rows="3"><%= campaign.description || '' %></textarea>
+      </div>
+
+      <div class="form-group mb-4">
+        <label for="imageUrl" class="form-label">Image URL</label>
+        <input type="url" class="form-control" id="imageUrl" name="imageUrl" value="<%= campaign.imageUrl || '' %>" placeholder="https://example.com/image.jpg">
+         <div class="mt-2">
+            <img src="<%= campaign.imageUrl || 'https://via.placeholder.com/150?text=No+Image' %>" alt="Image Preview" id="imagePreview" style="max-width: 200px; max-height: 150px; display: <%= campaign.imageUrl ? 'block' : 'none' %>;">
+        </div>
+      </div>
+      
+      <div class="row mb-4">
+        <div class="col-md-6 mb-3 mb-md-0">
+          <div class="form-group">
+            <label for="startDate" class="form-label">Start Date</label>
+            <input type="date" class="form-control" id="startDate" name="startDate" 
+                  value="<%= campaign.startDate ? new Date(campaign.startDate).toISOString().split('T')[0] : '' %>" required>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="endDate" class="form-label">End Date</label>
+            <input type="date" class="form-control" id="endDate" name="endDate" 
+                  value="<%= campaign.endDate ? new Date(campaign.endDate).toISOString().split('T')[0] : '' %>" required>
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-group mb-4">
+        <label for="spinsPerUser" class="form-label">Spins Per User</label>
+        <input type="number" class="form-control" id="spinsPerUser" name="spinsPerUser" 
+              min="1" value="<%= campaign.spinsPerUser ?? 1 %>" required>
+      </div>
+      
+      <hr class="my-4">
+
+      <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0">Prizes</h5>
+          <button type="button" id="add-prize" class="btn btn-outline-primary btn-sm">
+            <i class="fas fa-plus me-2"></i>Add Prize
+          </button>
+        </div>
+        <div id="prizes-container">
+          <% if (!campaign.prizes || campaign.prizes.length === 0) { %>
+            <div class="alert alert-warning text-center no-prizes-alert">
+              <i class="fas fa-exclamation-triangle me-2"></i>No prizes defined. Please add at least one prize.
+            </div>
+          <% } else { %>
+            <% campaign.prizes.forEach((prize, index) => { %>
+              <div class="prize-item card mb-3" data-index="<%= index %>">
+                <div class="card-body">
+                  <input type="hidden" name="prizes[<%= index %>][id]" value="<%= prize._id || '' %>">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                     <h6 class="card-title mb-0">Prize <%= index + 1 %></h6>
+                     <button type="button" class="btn btn-outline-danger btn-sm remove-prize" <%= campaign.prizes.length === 1 ? 'disabled' : '' %>>
+                        <i class="fas fa-times"></i>
+                      </button>
+                  </div>
+                  <div class="row g-3">
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label class="form-label">Prize Name</label>
+                        <input type="text" class="form-control" name="prizes[<%= index %>][name]" value="<%= prize.name || '' %>" required>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label class="form-label">Probability (%)</label>
+                        <input type="number" class="form-control probability-input" name="prizes[<%= index %>][probability]" 
+                              min="0" max="100" step="0.1" value="<%= prize.probability ?? 0 %>" required>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label class="form-label">Quantity</label>
+                        <input type="number" class="form-control prize-quantity" name="prizes[<%= index %>][quantity]" 
+                              min="0" value="<%= prize.quantity ?? 0 %>" required>
+                      </div>
+                    </div>
+                     <div class="col-md-6">
+                      <div class="form-group">
+                        <label class="form-label">Remaining</label>
+                        <input type="number" class="form-control prize-remaining" name="prizes[<%= index %>][remaining]" 
+                              min="0" max="<%= prize.quantity ?? 0 %>" value="<%= prize.remaining ?? prize.quantity ?? 0 %>" required>
+                        <div class="form-text">Must be less than or equal to Quantity.</div>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label class="form-label">Color</label>
+                        <div class="input-group">
+                          <span class="input-group-text color-preview" style="background-color: <%= prize.color || '#36A2EB' %>;"></span>
+                          <input type="color" class="form-control form-control-color" name="prizes[<%= index %>][color]" 
+                                value="<%= prize.color || '#36A2EB' %>">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-12">
+                      <div class="form-group">
+                        <label class="form-label">Image URL (Optional)</label>
+                        <input type="url" class="form-control" name="prizes[<%= index %>][image]" value="<%= prize.image || '' %>" 
+                              placeholder="https://example.com/image.jpg">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% }); %>
+          <% } %>
+        </div>
+        
+        <div id="probability-warning" class="alert alert-warning mt-3 d-none">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          Total probability: <span id="total-probability">0</span>%. This should ideally be 100%.
+        </div>
+      </div>
+      
+      <div class="d-flex justify-content-end mt-4">
+        <a href="/admin/campaigns" class="btn btn-outline-secondary me-2">
+          <i class="fas fa-times me-1"></i>Cancel
+        </a>
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-save me-1"></i>Update Campaign
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const prizesContainer = document.getElementById('prizes-container');
+  let prizeIndexOffset = <%= campaign.prizes ? campaign.prizes.length : 0 %>; // Start indexing for new prizes after existing ones
+
+  // Image preview for campaign
+  const imageUrlInput = document.getElementById('imageUrl');
+  const imagePreview = document.getElementById('imagePreview');
+  const defaultImageUrl = 'https://via.placeholder.com/150?text=No+Image';
+
+  imageUrlInput.addEventListener('input', () => {
+    const url = imageUrlInput.value.trim();
+    imagePreview.src = url || defaultImageUrl;
+    imagePreview.style.display = url ? 'block' : 'none';
+  });
+   imagePreview.onerror = () => {
+      imagePreview.src = defaultImageUrl;
+      imagePreview.style.display = 'block'; // Show placeholder on error
+   };
+
+
+  // Validate dates
+  const startDateInput = document.getElementById('startDate');
+  const endDateInput = document.getElementById('endDate');
+
+  function validateDates() {
+    if(startDateInput.value && endDateInput.value) {
+        const startDate = new Date(startDateInput.value);
+        const endDate = new Date(endDateInput.value);
+        if (startDate > endDate) {
+          endDateInput.value = startDateInput.value;
+          alert('End date cannot be before start date.');
+        }
+    }
+    if(startDateInput.value) endDateInput.min = startDateInput.value;
+    if(endDateInput.value) startDateInput.max = endDateInput.value;
+  }
+  startDateInput.addEventListener('change', validateDates);
+  endDateInput.addEventListener('change', validateDates);
+  validateDates(); // Initial check
+
+
+  // Add prize
+  document.getElementById('add-prize').addEventListener('click', () => {
+    const currentPrizeIndex = prizesContainer.querySelectorAll('.prize-item').length;
+    const newPrizeIndex = prizeIndexOffset + currentPrizeIndex; // This logic might need adjustment if items are removed and re-added. Simpler: just count current items for unique ID.
+                                                                // A better way for index is to find the max data-index and increment.
+                                                                // For name attribute, always use current count.
+
+    const prizeItem = document.createElement('div');
+    prizeItem.classList.add('prize-item', 'card', 'mb-3');
+    // data-index is mostly for client-side tracking if needed, server relies on order or `prizes[INDEX][id]`
+    prizeItem.dataset.index = newPrizeIndex;
+    const uniqueIndexForName = document.querySelectorAll('.prize-item').length; // Use this for name attributes
+
+    prizeItem.innerHTML = `
+      <div class="card-body">
+        <input type="hidden" name="prizes[${uniqueIndexForName}][id]" value=""> <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="card-title mb-0">New Prize ${uniqueIndexForName + 1}</h6>
+            <button type="button" class="btn btn-outline-danger btn-sm remove-prize">
+            <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-12">
+            <div class="form-group">
+              <label class="form-label">Prize Name</label>
+              <input type="text" class="form-control" name="prizes[${uniqueIndexForName}][name]" required>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">Probability (%)</label>
+              <input type="number" class="form-control probability-input" name="prizes[${uniqueIndexForName}][probability]" 
+                    min="0" max="100" step="0.1" value="10" required>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">Quantity</label>
+              <input type="number" class="form-control prize-quantity" name="prizes[${uniqueIndexForName}][quantity]" 
+                    min="0" value="1" required>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">Remaining</label>
+              <input type="number" class="form-control prize-remaining" name="prizes[${uniqueIndexForName}][remaining]" 
+                    min="0" value="1" required> 
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">Color</label>
+              <div class="input-group">
+                <span class="input-group-text color-preview" style="background-color: #36A2EB;"></span>
+                <input type="color" class="form-control form-control-color" name="prizes[${uniqueIndexForName}][color]" 
+                      value="#36A2EB">
+              </div>
+            </div>
+          </div>
+          <div class="col-12">
+            <div class="form-group">
+              <label class="form-label">Image URL (Optional)</label>
+              <input type="url" class="form-control" name="prizes[${uniqueIndexForName}][image]" 
+                    placeholder="https://example.com/image.jpg">
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    // Remove "no prizes" alert if it exists
+    const noPrizesAlert = prizesContainer.querySelector('.no-prizes-alert');
+    if (noPrizesAlert) {
+        noPrizesAlert.remove();
+    }
+
+    prizesContainer.appendChild(prizeItem);
+    updateRemovePrizeButtonStates();
+    attachEventListenersToNewPrize(prizeItem); // Attach listeners to new elements
+    updateTotalProbability();
+  });
+
+  function updatePrizeItemNamesAndTitles() {
+    const prizeItems = prizesContainer.querySelectorAll('.prize-item');
+    prizeItems.forEach((item, idx) => {
+        item.querySelector('.card-title').textContent = `Prize ${idx + 1}`;
+        // Update name attributes for all inputs within this item
+        item.querySelectorAll('input, select, textarea').forEach(input => {
+            const oldName = input.getAttribute('name');
+            if (oldName && oldName.startsWith('prizes[')) {
+                const newName = oldName.replace(/prizes\[\d+\]/, `prizes[${idx}]`);
+                input.setAttribute('name', newName);
+            }
+        });
+    });
+  }
+
+
+  function removePrizeHandler(event) {
+    const prizeItems = prizesContainer.querySelectorAll('.prize-item');
+    if (prizeItems.length > 1) {
+      event.target.closest('.prize-item').remove();
+      updateRemovePrizeButtonStates();
+      updateTotalProbability();
+      updatePrizeItemNamesAndTitles(); // Re-index names after removal
+    } else {
+      alert('At least one prize is required.');
+    }
+  }
+
+  function updateRemovePrizeButtonStates() {
+    const prizeItems = prizesContainer.querySelectorAll('.prize-item');
+    prizeItems.forEach((item, index) => {
+      const removeButton = item.querySelector('.remove-prize');
+      if (removeButton) {
+        removeButton.disabled = (prizeItems.length === 1);
+      }
+    });
+  }
+  
+  function attachEventListenersToNewPrize(prizeItemElement) {
+    // Color picker sync
+    const colorInput = prizeItemElement.querySelector('.form-control-color');
+    if (colorInput) {
+        colorInput.addEventListener('input', (e) => {
+            const preview = e.target.closest('.input-group').querySelector('.color-preview');
+            preview.style.backgroundColor = e.target.value;
+        });
+    }
+    // Probability input sync
+    const probInput = prizeItemElement.querySelector('.probability-input');
+    if (probInput) {
+        probInput.addEventListener('input', updateTotalProbability);
+    }
+    // Quantity and Remaining validation
+    const quantityInput = prizeItemElement.querySelector('.prize-quantity');
+    const remainingInput = prizeItemElement.querySelector('.prize-remaining');
+    if (quantityInput && remainingInput) {
+        quantityInput.addEventListener('input', () => {
+            const quantity = parseInt(quantityInput.value) || 0;
+            remainingInput.max = quantity;
+            // Optionally, auto-adjust remaining if it exceeds new quantity
+            // if (parseInt(remainingInput.value) > quantity) {
+            //    remainingInput.value = quantity;
+            // }
+        });
+        remainingInput.addEventListener('input', () => {
+            const quantity = parseInt(quantityInput.value) || 0;
+            if (parseInt(remainingInput.value) > quantity) {
+                remainingInput.value = quantity; // Prevent remaining > quantity
+                alert('Remaining quantity cannot exceed total quantity.');
+            }
+        });
+         // Set initial max for remaining based on quantity
+        if (quantityInput.value) {
+            remainingInput.max = parseInt(quantityInput.value);
+        }
+    }
+
+    // Attach remove handler to the new button
+    const removeButton = prizeItemElement.querySelector('.remove-prize');
+    if(removeButton){
+        removeButton.addEventListener('click', removePrizeHandler);
+    }
+  }
+
+
+  // Initial attachment of listeners to existing prize items
+  prizesContainer.querySelectorAll('.prize-item').forEach(item => {
+    attachEventListenersToNewPrize(item);
+  });
+  
+
+  function updateTotalProbability() {
+    const probabilityInputs = document.querySelectorAll('.probability-input');
+    let total = 0;
+    probabilityInputs.forEach(input => {
+      total += parseFloat(input.value) || 0;
+    });
+    
+    const warningElement = document.getElementById('probability-warning');
+    const totalElement = document.getElementById('total-probability');
+    
+    totalElement.textContent = total.toFixed(1);
+    if (probabilityInputs.length > 0 && Math.abs(total - 100) > 0.1) { // Only show warning if there are prizes
+      warningElement.classList.remove('d-none');
+      warningElement.classList.toggle('alert-danger', total > 100);
+      warningElement.classList.toggle('alert-warning', total < 100 && total > 0); // Warning if < 100 but not 0
+    } else {
+      warningElement.classList.add('d-none');
+    }
+  }
+
+  // Form validation before submission
+  document.getElementById('campaignForm').addEventListener('submit', (e) => {
+    const prizeItems = prizesContainer.querySelectorAll('.prize-item');
+    if (prizeItems.length === 0) {
+      e.preventDefault();
+      alert('At least one prize is required for the campaign.');
+      return;
+    }
+
+    const probabilityInputs = document.querySelectorAll('.probability-input');
+    let total = 0;
+    probabilityInputs.forEach(input => {
+      total += parseFloat(input.value) || 0;
+    });
+
+    if (Math.abs(total - 100) > 0.1) { // Allow small floating point inaccuracies
+      if (!confirm(`Total prize probability is ${total.toFixed(1)}%, not 100%. Do you want to continue?`)) {
+        e.preventDefault();
+      }
+    }
+  });
+
+  // Initialize
+  updateRemovePrizeButtonStates();
+  updateTotalProbability();
+});
+</script>

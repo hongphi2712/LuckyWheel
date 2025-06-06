@@ -1,0 +1,61 @@
+<div  class="row mb-4">
+  <div class="col-md-12">
+    <div class="card border-0 shadow">
+      <div class="card-body p-4">
+        <h2 class="mb-3 text-primary">Available Campaigns</h2>
+        <p class="mb-0">Choose a campaign below to spin the wheel and win amazing prizes!</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+  <% if (campaigns.length > 0) { %>
+    <% campaigns.forEach(campaign => { %>
+      <div class="col">
+        <div class="card h-100 border-0 shadow campaign-item">
+          <div class="position-relative overflow-hidden" style="height: 200px;">
+            <img 
+              src="<%= campaign.image || 'https://images.unsplash.com/photo-1563114773-84221bd62daa?auto=format&fit=crop&w=800&q=80' %>" 
+              class="card-img-top h-100 w-100" 
+              style="object-fit: cover;" 
+              alt="<%= campaign.name %>"
+            >
+            <div class="card-img-overlay d-flex flex-column justify-content-end">
+              <h5 class="card-title text-white"><%= campaign.name %></h5>
+            </div>
+          </div>
+          <div class="card-body p-4">
+            <p class="card-text"><%= campaign.description || 'Spin the wheel and win exciting prizes!' %></p>
+            
+            <div class="mb-3">
+              <div class="d-flex justify-content-between small text-muted mb-1">
+                <span><i class="far fa-calendar-alt me-1"></i> Valid until:</span>
+                <span><%= new Date(campaign.endDate).toLocaleDateString() %></span>
+              </div>
+              <div class="d-flex justify-content-between small text-muted">
+                <span><i class="fas fa-redo-alt me-1"></i> Spins per user:</span>
+                <span><%= campaign.spinsPerUser %></span>
+              </div>
+            </div>
+            
+            <div class="d-grid">
+              <a href="/campaigns/<%= campaign._id %>" class="btn btn-primary">
+                <i class="fas fa-trophy me-2"></i>Spin & Win
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% }); %>
+  <% } else { %>
+    <div class="col-12">
+      <div class="alert alert-info text-center py-5">
+        <i class="fas fa-info-circle fa-3x mb-3"></i>
+        <h4>No Active Campaigns</h4>
+        <p class="mb-0">There are no active campaigns at the moment. Please check back later!</p>
+      </div>
+    </div>
+  <% } %>
+</div>
+ 

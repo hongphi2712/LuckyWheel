@@ -1,0 +1,366 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="mb-0">Create New Campaign</h2>
+   <a href="/admin/campaigns" class="btn btn-outline-primary">
+    <i class="fas fa-arrow-left me-2"></i>Back to Campaigns
+  </a>
+</div>
+
+<% if (typeof error_msg !== 'undefined' && error_msg.length > 0) { %>
+  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <%= error_msg %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+<% } %>
+
+
+<div class="card border-0 shadow">
+  <div class="card-body p-4">
+    <form action="/admin/campaigns/create" method="POST" id="campaignForm">
+      <div class="row mb-4">
+        <div class="col-md-7">
+          <h5 class="mb-3">Campaign Details</h5>
+          
+          <div class="form-group mb-3">
+            <label for="name" class="form-label">Campaign Name</label> <input type="text" name="name" id="name" class="form-control" value="<%= typeof campaign !== 'undefined' && campaign.name ? campaign.name : '' %>" required>
+          </div>
+          
+          <div class="form-group mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea name="description" id="description" class="form-control" rows="3"><%= typeof campaign !== 'undefined' && campaign.description ? campaign.description : '' %></textarea>
+          </div>
+          
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="startDate" class="form-label">Start Date</label>
+                <input type="date" name="startDate" id="startDate" class="form-control" value="<%= typeof campaign !== 'undefined' && campaign.startDate ? campaign.startDate : '' %>" required>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="endDate" class="form-label">End Date</label>
+                <input type="date" name="endDate" id="endDate" class="form-control" value="<%= typeof campaign !== 'undefined' && campaign.endDate ? campaign.endDate : '' %>" required>
+              </div>
+            </div>
+          </div>
+          
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="status" class="form-label">Status</label>
+                <select name="status" id="status" class="form-select" required>
+                  <option value="draft" <%= typeof campaign !== 'undefined' && campaign.status === 'draft' ? 'selected' : '' %>>Draft</option>
+                  <option value="active" <%= typeof campaign !== 'undefined' && campaign.status === 'active' ? 'selected' : '' %>>Active</option>
+                  <option value="ended" <%= typeof campaign !== 'undefined' && campaign.status === 'ended' ? 'selected' : '' %>>Ended</option>
+                  <option value="inactive" <%= typeof campaign !== 'undefined' && campaign.status === 'inactive' ? 'selected' : '' %>>Inactive</option>
+                  <option value="completed" <%= typeof campaign !== 'undefined' && campaign.status === 'completed' ? 'selected' : '' %>>Completed</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="spinsPerUser" class="form-label">Spins Per User</label>
+                <input type="number" name="spinsPerUser" id="spinsPerUser" class="form-control" min="1" value="<%= typeof campaign !== 'undefined' && campaign.spinsPerUser ? campaign.spinsPerUser : 1 %>" required>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-5">
+          <h5 class="mb-3">Campaign Image</h5>
+          <div class="form-group mb-3">
+            <label for="imageUrl" class="form-label">Image URL (Optional)</label>
+            <input type="url" name="imageUrl" id="imageUrl" class="form-control" value="<%= typeof campaign !== 'undefined' && campaign.imageUrl ? campaign.imageUrl : '' %>" placeholder="https://example.com/image.jpg">
+          </div>
+          <div class="campaign-image-preview text-center">
+            <img 
+              src="<%= typeof campaign !== 'undefined' && campaign.imageUrl ? campaign.imageUrl : 'https://via.placeholder.com/300x200?text=Preview' %>" 
+              alt="Campaign Preview" 
+              id="campaignImagePreview"
+              class="img-fluid rounded shadow" 
+              style="max-height: 200px; object-fit: cover; display: <%= typeof campaign !== 'undefined' && campaign.imageUrl ? 'block' : 'none' %>;">
+             <small id="imagePreviewText" class="form-text text-muted" style="display: <%= typeof campaign !== 'undefined' && campaign.imageUrl ? 'none' : 'block' %>;">Image preview will appear here.</small>
+          </div>
+        </div>
+      </div>
+      
+      <hr class="my-4">
+      
+      <div class="prizes-section mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0">Prizes</h5>
+          <button type="button" id="add-prize" class="btn btn-sm btn-primary">
+            <i class="fas fa-plus me-1"></i>Add Prize
+          </button>
+        </div>
+        
+        <div id="prizes-container">
+          <% if (typeof campaign !== 'undefined' && campaign.prizes && campaign.prizes.length > 0) { %>
+            <% campaign.prizes.forEach((prize, index) => { %>
+              <div class="prize-item card mb-3" data-index="<%= index %>">
+                <div class="card-body">
+                  <input type="hidden" name="prizes[<%= index %>][id]" value=""> <div class="d-flex justify-content-between align-items-center mb-2">
+                     <h6 class="card-title mb-0">Prize <%= index + 1 %></h6>
+                     <button type="button" class="btn btn-outline-danger btn-sm remove-prize">
+                        <i class="fas fa-times"></i>
+                      </button>
+                  </div>
+                  <div class="row g-3">
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label class="form-label">Prize Name</label>
+                        <input type="text" class="form-control" name="prizes[<%= index %>][name]" value="<%= prize.name || '' %>" required>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label class="form-label">Probability (%)</label>
+                        <input type="number" class="form-control probability-input" name="prizes[<%= index %>][probability]" 
+                              min="0" max="100" step="0.1" value="<%= prize.probability ?? 10 %>" required>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label class="form-label">Quantity</label>
+                        <input type="number" class="form-control prize-quantity" name="prizes[<%= index %>][quantity]" 
+                              min="0" value="<%= prize.quantity ?? 1 %>" required>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label class="form-label">Color</label>
+                        <div class="input-group">
+                          <span class="input-group-text color-preview" style="background-color: <%= prize.color || '#36A2EB' %>;"></span>
+                          <input type="color" class="form-control form-control-color" name="prizes[<%= index %>][color]" 
+                                value="<%= prize.color || '#36A2EB' %>">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label class="form-label">Image URL (Optional)</label>
+                        <input type="url" class="form-control" name="prizes[<%= index %>][image]" value="<%= prize.image || '' %>" 
+                              placeholder="https://example.com/image.jpg">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% }); %>
+          <% } else { %>
+             <div class="alert alert-info no-prizes-alert">
+                <i class="fas fa-info-circle me-2"></i>Click "Add Prize" to configure prizes for your campaign.
+             </div>
+          <% } %>
+        </div>
+        
+        <div id="probability-warning" class="alert alert-warning mt-3 d-none">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          Total probability: <span id="total-probability">0</span>%. This should ideally be 100%.
+        </div>
+      </div>
+      
+      <div class="d-flex justify-content-end mt-4">
+        <a href="/admin/campaigns" class="btn btn-outline-secondary me-2">
+          <i class="fas fa-times me-1"></i>Cancel
+        </a>
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-save me-1"></i>Create Campaign
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Set default dates for create form
+  const startDateInput = document.getElementById('startDate');
+  const endDateInput = document.getElementById('endDate');
+  if (!startDateInput.value) {
+    const today = new Date();
+    startDateInput.value = today.toISOString().split('T')[0];
+  }
+  if (!endDateInput.value) {
+    const tomorrow = new Date(startDateInput.value || new Date()); // Use start date or today
+    tomorrow.setDate(tomorrow.getDate() + 30); // Default end date 30 days after start
+    endDateInput.value = tomorrow.toISOString().split('T')[0];
+  }
+  
+  function validateDates() {
+    if(startDateInput.value && endDateInput.value) {
+        const startDate = new Date(startDateInput.value);
+        const endDate = new Date(endDateInput.value);
+        if (startDate > endDate) {
+          endDateInput.value = startDateInput.value;
+          alert('End date cannot be before start date.');
+        }
+    }
+    if(startDateInput.value) endDateInput.min = startDateInput.value;
+    if(endDateInput.value) startDateInput.max = endDateInput.value;
+  }
+  startDateInput.addEventListener('change', validateDates);
+  endDateInput.addEventListener('change', validateDates);
+  validateDates(); // Initial check
+
+  // Image URL preview
+  const imageUrlInput = document.getElementById('imageUrl');
+  const imagePreview = document.getElementById('campaignImagePreview');
+  const imagePreviewText = document.getElementById('imagePreviewText');
+  const defaultImageSrc = 'https://via.placeholder.com/300x200?text=Preview';
+
+  imageUrlInput.addEventListener('input', () => {
+    const url = imageUrlInput.value.trim();
+    if (url) {
+      imagePreview.src = url;
+      imagePreview.style.display = 'block';
+      if(imagePreviewText) imagePreviewText.style.display = 'none';
+    } else {
+      imagePreview.src = defaultImageSrc;
+      imagePreview.style.display = 'none';
+       if(imagePreviewText) imagePreviewText.style.display = 'block';
+    }
+  });
+  imagePreview.onerror = () => {
+    imagePreview.src = defaultImageSrc;
+    imagePreview.style.display = 'block'; // Show placeholder on error
+    if(imagePreviewText) imagePreviewText.style.display = 'none';
+  };
+   // Initial check for existing image URL (e.g. on form validation fail and reload)
+  if (imageUrlInput.value.trim()) {
+    imagePreview.src = imageUrlInput.value.trim();
+    imagePreview.style.display = 'block';
+    if(imagePreviewText) imagePreviewText.style.display = 'none';
+  }
+
+
+  document.getElementById('add-prize').addEventListener('click', () => addPrizeToList());
+  
+  function updatePrizeItemNamesAndTitles() {
+    const prizeItems = prizesContainer.querySelectorAll('.prize-item');
+    prizeItems.forEach((item, idx) => {
+        item.querySelector('.card-title').textContent = `Prize ${idx + 1}`;
+        item.querySelectorAll('input, select, textarea').forEach(input => {
+            const oldName = input.getAttribute('name');
+            if (oldName && oldName.startsWith('prizes[')) {
+                const newName = oldName.replace(/prizes\[\d+\]/, `prizes[${idx}]`);
+                input.setAttribute('name', newName);
+            }
+        });
+    });
+  }
+
+  function removePrizeHandler(event) {
+    const prizeItems = prizesContainer.querySelectorAll('.prize-item');
+    if (prizeItems.length > 1) {
+      event.target.closest('.prize-item').remove();
+      updateRemovePrizeButtonStates();
+      updateTotalProbability();
+      updatePrizeItemNamesAndTitles(); // Re-index names
+    } else {
+      // If it's the last one, clear its fields instead of removing, or just alert.
+      // For create, it's better to allow removal and show "no prizes alert" if needed.
+       event.target.closest('.prize-item').remove();
+       updateRemovePrizeButtonStates();
+       updateTotalProbability();
+       updatePrizeItemNamesAndTitles(); 
+       if (prizesContainer.querySelectorAll('.prize-item').length === 0) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-info no-prizes-alert';
+            alertDiv.innerHTML = '<i class="fas fa-info-circle me-2"></i>Click "Add Prize" to configure prizes.';
+            prizesContainer.appendChild(alertDiv);
+       }
+    }
+  }
+
+  function updateRemovePrizeButtonStates() {
+    const prizeItems = prizesContainer.querySelectorAll('.prize-item');
+    prizeItems.forEach((item) => {
+      const removeButton = item.querySelector('.remove-prize');
+      if (removeButton) {
+        // Enable remove button always if there's more than one way to handle "at least one prize" (e.g. server validation)
+        // For simplicity, let's say you can always remove, and server will catch if 0 prizes submitted.
+        // Or, disable if only one: removeButton.disabled = (prizeItems.length === 1);
+      }
+    });
+  }
+  
+  function attachEventListenersToPrizeItem(prizeItemElement) {
+    const colorInput = prizeItemElement.querySelector('.form-control-color');
+    if (colorInput) {
+        colorInput.addEventListener('input', (e) => {
+            const preview = e.target.closest('.input-group').querySelector('.color-preview');
+            preview.style.backgroundColor = e.target.value;
+        });
+    }
+    const probInput = prizeItemElement.querySelector('.probability-input');
+    if (probInput) {
+        probInput.addEventListener('input', updateTotalProbability);
+    }
+    const removeButton = prizeItemElement.querySelector('.remove-prize');
+    if(removeButton){
+        removeButton.addEventListener('click', removePrizeHandler);
+    }
+  }
+
+  // Initial attachment for prizes already rendered by EJS (if any, e.g. from form resubmission with errors)
+  prizesContainer.querySelectorAll('.prize-item').forEach(item => {
+    attachEventListenersToPrizeItem(item);
+  });
+  // If no prizes are rendered initially (e.g. fresh create form and no campaign.prizes data), add one default
+  if (prizesContainer.querySelectorAll('.prize-item').length === 0 && !prizesContainer.querySelector('.no-prizes-alert')) {
+     // Check if the alert exists before adding a prize, because the EJS might have rendered the alert.
+     if (prizesContainer.querySelector('.no-prizes-alert')) {
+        // do nothing, user will click "add prize"
+     } else {
+        addPrizeToList({ name: 'Default Prize', probability: 100, quantity: 10}); // Add one by default
+     }
+  }
+
+
+  function updateTotalProbability() {
+    const probabilityInputs = document.querySelectorAll('.probability-input');
+    let total = 0;
+    probabilityInputs.forEach(input => {
+      total += parseFloat(input.value) || 0;
+    });
+    
+    const warningElement = document.getElementById('probability-warning');
+    const totalElement = document.getElementById('total-probability');
+    
+    totalElement.textContent = total.toFixed(1);
+    if (probabilityInputs.length > 0 && Math.abs(total - 100) > 0.1) {
+      warningElement.classList.remove('d-none');
+      warningElement.classList.toggle('alert-danger', total > 100);
+      warningElement.classList.toggle('alert-warning', total < 100 && total > 0);
+    } else {
+      warningElement.classList.add('d-none');
+    }
+  }
+
+  document.getElementById('campaignForm').addEventListener('submit', (e) => {
+    const prizeItems = prizesContainer.querySelectorAll('.prize-item');
+    if (prizeItems.length === 0) {
+      e.preventDefault();
+      alert('At least one prize is required for the campaign.');
+      return;
+    }
+
+    const probabilityInputs = document.querySelectorAll('.probability-input');
+    let total = 0;
+    probabilityInputs.forEach(input => {
+      total += parseFloat(input.value) || 0;
+    });
+
+    if (Math.abs(total - 100) > 0.1) {
+      if (!confirm(`Total prize probability is ${total.toFixed(1)}%, not 100%. Do you want to continue?`)) {
+        e.preventDefault();
+      }
+    }
+  });
+
+  // Initialize
+  updateRemovePrizeButtonStates();
+  updateTotalProbability();
+});
+</script>

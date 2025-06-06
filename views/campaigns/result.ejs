@@ -1,0 +1,70 @@
+<div  class="container">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card border-0 shadow">
+        <div class="card-body p-5">
+          <div class="text-center mb-4">
+            <div class="mb-3">
+              <i class="fas fa-trophy fa-4x text-primary"></i>
+            </div>
+            <h1 class="display-5 fw-bold">Congratulations!</h1>
+            <p class="fs-4">You've won a prize from our lucky wheel!</p>
+          </div>
+          
+          <div class="winner-prize p-4 mb-4 text-center">
+            <h2 class="display-6 mb-3" style="color: <%= result.prize.color || '#4e73df' %>;">
+              <%= result.prize.name %>
+            </h2>
+            
+            <% if (result.prize.image) { %>
+              <div class="mb-3">
+                <img src="<%= result.prize.image %>" class="img-fluid rounded shadow-sm" style="max-height: 200px;" alt="<%= result.prize.name %>">
+              </div>
+            <% } %>
+          </div>
+          
+          <div class="prize-details mb-4">
+            <div class="card bg-light">
+              <div class="card-body">
+                <h4 class="card-title mb-3">Prize Details</h4>
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent">
+                    <span>Campaign:</span>
+                    <span class="fw-bold">
+                      <% if (result.campaign) { %>
+                        <% if (result.campaign.title && result.campaign.title.trim() !== '') { %>
+                          <%= result.campaign.title %>
+                        <% } else { %>
+                          <%= result.campaign._id %>
+                        <% } %>
+                      <% } else { %>
+                        N/A
+                      <% } %>
+                    </span>
+                  </li>
+                  <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent">
+                    <span>Date Won:</span>
+                    <span class="fw-bold"><%= new Date(result.createdAt).toLocaleString() %></span>
+                  </li>
+                  <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent">
+                    <span>Phone Number:</span>
+                    <span class="fw-bold"><%= result.phone %></span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          
+          <div class="text-center">
+            <a href="/campaigns" class="btn btn-primary me-2">
+              <i class="fas fa-trophy me-2"></i>Browse More Campaigns
+            </a>
+            <a href="/user/history" class="btn btn-outline-primary">
+              <i class="fas fa-history me-2"></i>View My History
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

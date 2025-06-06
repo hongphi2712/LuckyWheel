@@ -1,0 +1,140 @@
+<div  class="row">
+  <div class="col-lg-6 mb-4 mb-lg-0">
+    <div class="card border-0 shadow h-100">
+      <div class="card-body p-4">
+        <h2 class="mb-3 text-primary fw-bold"><%= campaign.name %></h2>
+        <p class="mb-4 fs-5"><%= campaign.description || 'Spin the wheel and win exciting prizes!' %></p>
+        
+        <% if (canSpin) { %>
+          <div class="alert alert-info mb-4">
+            <div class="d-flex align-items-center">
+              <div class="me-3">
+                <i class="fas fa-info-circle fa-2x"></i>
+              </div>
+              <div>
+                <h5 class="alert-heading mb-1">Ready to Try Your Luck?</h5>
+                <p class="mb-0">
+                  You have <%= remainingSpins %> spin<%= remainingSpins !== 1 ? 's' : '' %> left for this campaign.
+                </p>
+              </div>
+            </div>
+          </div>
+        <% } else { %>
+          <div class="alert alert-warning mb-4">
+            <div class="d-flex align-items-center">
+              <div class="me-3">
+                <i class="fas fa-exclamation-triangle fa-2x"></i>
+              </div>
+              <div>
+                <h5 class="alert-heading mb-1">Spin Limit Reached</h5>
+                <p class="mb-0">
+                  You have used all your spins for this campaign.
+                </p>
+              </div>
+            </div>
+          </div>
+        <% } %>
+        
+        <div class="mb-4">
+          <h5 class="mb-3">Prizes You Can Win:</h5>
+          <div class="prize-list">
+            <% campaign.prizes.forEach(prize => { %>
+              <div class="prize-item">
+                <div class="prize-color" style="background-color: <%= prize.color %>;"></div>
+                <div class="prize-name"><%= prize.name %></div>
+              </div>
+            <% }); %>
+          </div>
+        </div>
+        
+        <% if (!user) { %>
+          <div id="user-info-section">
+            <div class="d-grid gap-2">
+              <a href="/user/enter-phone?campaign=<%= campaign._id %>" class="btn btn-primary btn-lg">Spin as Guest</a>
+              <div class="text-center">- OR -</div>
+              <a href="/user/login" class="btn btn-outline-primary">Admin Login</a>
+            </div>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-lg-6">
+    <div class="card border-0 shadow">
+      <div class="card-body p-4 text-center">
+        <div class="wheel-container mb-4">
+          <div class="wheel-outer-border"></div>
+          <div class="wheel-ticker"></div>
+          <canvas id="wheel" width="380" height="380"></canvas>
+          <div id="spin-btn">SPIN</div>
+          <div class="shine-effect"></div>
+            <div class="spin-count-info mt-3"></div> <!-- Thêm element này -->
+        </div>
+        
+        <div id="spin-controls">
+          <% if (canSpin) { %>
+            <button id="start-spin" class="btn btn-primary btn-lg px-5">
+              <i class="fas fa-sync-alt me-2"></i>Spin Now
+            </button>
+          <% } else { %>
+            <button class="btn btn-secondary btn-lg px-5" disabled>
+              <i class="fas fa-lock me-2"></i>No Spins Left
+            </button>
+          <% } %>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const campaign = <%- JSON.stringify(campaign) %>;
+  const user = <%- JSON.stringify(user || null) %>;
+  const canSpin = <%- JSON.stringify(canSpin) %>;
+  
+  // Check if user info is in session storage
+  document.addEventListener('DOMContentLoaded', function() {
+    const userPhone = sessionStorage.getItem('userPhone');
+    const userName = sessionStorage.getItem('userName');
+    
+    if (userPhone && !user && document.getElementById('user-info-section')) {
+      // Update UI to show user info
+      const userInfoSection = document.getElementById('user-info-section');
+      userInfoSection.innerHTML = `
+        <div class="alert alert-success mb-4">
+          <div class="d-flex align-items-center">
+            <div class="me-3">
+              <i class="fas fa-user-check fa-2x"></i>
+            </div>
+            <div>
+              <h5 class="alert-heading mb-1">Welcome${userName ? ', ' + userName : ''}!</h5>
+              <p class="mb-0">
+                Your phone: ${userPhone}
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex justify-content-between">
+          <a href="/user/history?phone=${userPhone}" class="btn btn-outline-primary">
+            <i class="fas fa-history me-1"></i> View Spin History
+          </a>
+          <button id="clear-user" class="btn btn-outline-secondary">
+            <i class="fas fa-sign-out-alt me-1"></i> Use Different Number
+          </button>
+        </div>
+      `;
+      
+      // Add event listener for clear user button
+      document.getElementById('clear-user').addEventListener('click', function() {
+        sessionStorage.removeItem('userPhone');
+        sessionStorage.removeItem('userName');
+        window.location.reload();
+      });
+    }
+  });
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.1.3/TweenMax.min.js"></script>
+<script src="/js/Winwheel.min.js"></script>
+<script src="/js/spin-wheel.js"></script>
