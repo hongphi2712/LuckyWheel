@@ -30,12 +30,16 @@ const PrizeSchema = new mongoose.Schema({
     type: Number,
     required: [true, 'Remaining quantity is required'],
     min: [0, 'Remaining quantity cannot be negative'],
-    validate: { // Đảm bảo remaining không lớn hơn quantity
+    validate: {
         validator: function(value) {
             return value <= this.quantity;
         },
         message: 'Remaining quantity cannot exceed total quantity'
     }
+  },
+  isWinner: { // <--- Thêm trường này
+    type: Boolean,
+    default: true // true: trúng giải, false: trượt
   }
 });
 

@@ -56,9 +56,11 @@
           </div>
           
           <div class="text-center mb-3">
-            <a href="https://zalo.me/563781139731811416" target="_blank" class="btn btn-success">
-              Ấn vào đây để nhận mã qua Zalo
-            </a>
+            <% if (result.prize.isWinner) { %>
+              <a href="https://zalo.me/563781139731811416" target="_blank" class="btn btn-success">
+                Ấn vào đây để nhận mã qua Zalo
+              </a>
+            <% } %>
           </div>
           
           <div class="text-center">
