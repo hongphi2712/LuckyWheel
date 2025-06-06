@@ -24,9 +24,11 @@ app.use(methodOverride('_method'));
 // Static files
 app.use(express.static(path.join(__dirname, 'public')));
 
+
 // EJS
 app.use(expressLayouts);
 app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 app.set('layout', 'layouts/main');
 
 // Session
