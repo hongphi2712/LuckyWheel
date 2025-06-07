@@ -235,13 +235,16 @@ exports.spinWheel = async (req, res) => {
       { $inc: { 'prizes.$.remaining': -1 } }
     );
 
+    // Lưu kết quả với isWinner
     const spinResult = new SpinResult({
       user: userId,
       campaign: campaignId,
       prize: {
         id: selectedPrize._id,
         name: selectedPrize.name,
-        image: selectedPrize.image
+        image: selectedPrize.image,
+        color: selectedPrize.color,
+        isWinner: selectedPrize.isWinner // Thêm isWinner vào kết quả
       },
       phone: userPhone
     });
@@ -254,7 +257,8 @@ exports.spinWheel = async (req, res) => {
         id: selectedPrize._id,
         name: selectedPrize.name,
         color: selectedPrize.color,
-        image: selectedPrize.image
+        image: selectedPrize.image,
+        isWinner: selectedPrize.isWinner // Trả về isWinner cho frontend
       },
       resultId: spinResult._id,
       spinsUsed: spinCount + 1, // Số lượt đã sử dụng sau khi quay

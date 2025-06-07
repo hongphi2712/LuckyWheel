@@ -56,10 +56,20 @@
           </div>
           
           <div class="text-center mb-3">
-            <% if (result.prize.isWinner) { %>
-              <a href="https://zalo.me/563781139731811416" target="_blank" class="btn btn-success">
-                Ấn vào đây để nhận mã qua Zalo
+            <% if (result.prize.isWinner === true) { %>
+              <div class="alert alert-success mb-3">
+                <i class="fas fa-trophy text-warning me-2"></i>
+                <strong>Chúc mừng! Bạn đã trúng giải thưởng!</strong>
+              </div>
+              <a href="https://zalo.me/563781139731811416" target="_blank" class="btn btn-success btn-lg">
+                <i class="fab fa-zalo me-2"></i>Nhận mã giải thưởng qua Zalo
               </a>
+            <% } else { %>
+              <div class="alert alert-info mb-3">
+                <i class="fas fa-smile me-2"></i>
+                <strong>Chúc bạn may mắn lần sau!</strong>
+              </div>
+              <p class="text-muted">Hãy tiếp tục tham gia các chiến dịch khác để có cơ hội trúng thưởng nhé!</p>
             <% } %>
           </div>
           

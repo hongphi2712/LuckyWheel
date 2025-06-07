@@ -37,9 +37,10 @@ const PrizeSchema = new mongoose.Schema({
         message: 'Remaining quantity cannot exceed total quantity'
     }
   },
-  isWinner: { // <--- Thêm trường này
+  isWinner: {
     type: Boolean,
-    default: true // true: trúng giải, false: trượt
+    default: true, // Mặc định là giải thưởng (true: trúng, false: trượt)
+    required: true
   }
 });
 

@@ -117,9 +117,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Draw ticker
     const ticker = document.querySelector('.wheel-ticker');
     if (ticker) {
-      ticker.style.left = 'calc(50% - 20px)';
+      ticker.style.left = 'calc(50% )';
       ticker.style.width = '40px';
       ticker.style.height = '40px';
+      //lật ngược nó lại
+      ticker.style.transform = 'translateX(-50%) rotate(180deg)';
     }
   }
   
@@ -158,60 +160,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
   
-  function createConfetti() {
-  const container = document.getElementById('confetti-container');
-  if (!container) return;
-
-  // Đảm bảo container hiển thị trước khi thêm confetti
-  container.style.display = 'block';
-  container.style.opacity = '0'; // Bắt đầu với opacity 0 để tránh nhấp nháy
-  container.innerHTML = ''; // Xóa nội dung cũ
-
-  const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
-
-  // Giảm số lượng confetti để cải thiện hiệu suất
-  for (let i = 0; i < 50; i++) { // Giảm từ 100 xuống 50
-    const confetti = document.createElement('div');
-    confetti.className = 'confetti';
-    confetti.style.position = 'absolute'; // Đảm bảo vị trí tuyệt đối
-    confetti.style.left = Math.random() * 100 + '%';
-    confetti.style.top = '-10px'; // Bắt đầu từ trên cùng
-    confetti.style.width = Math.random() * 8 + 4 + 'px';
-    confetti.style.height = Math.random() * 8 + 4 + 'px';
-    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
-    confetti.style.animationDelay = Math.random() * 0.5 + 's'; // Giảm độ trễ
-    confetti.style.animationDuration = Math.random() * 2 + 2 + 's'; // Giảm thời gian animation
-
-    // Random shapes
-    const shape = Math.floor(Math.random() * 3);
-    if (shape === 0) {
-      confetti.style.borderRadius = '50%';
-    } else if (shape === 1) {
-      confetti.style.borderRadius = '0';
-    } else {
-      confetti.style.width = '6px';
-      confetti.style.height = '6px';
-      confetti.style.transform = 'rotate(45deg)';
-    }
-
-    container.appendChild(confetti);
-  }
-
-  // Dùng requestAnimationFrame để đảm bảo animation mượt mà
-  requestAnimationFrame(() => {
-    container.style.transition = 'opacity 0.5s ease';
-    container.style.opacity = '1'; // Fade-in container
-  });
-
-  // Ẩn container sau khi animation hoàn tất
-  setTimeout(() => {
-    container.style.transition = 'opacity 0.5s ease';
-    container.style.opacity = '0';
-    setTimeout(() => {
-      container.style.display = 'none';
-    }, 500); // Đợi hiệu ứng fade-out hoàn tất
-  }, 5000); // Giảm thời gian hiển thị confetti từ 7s xuống 5s
-}
   
   function showErrorMessage(message) {
     // Create alert element

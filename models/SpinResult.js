@@ -12,8 +12,8 @@ const SpinResultSchema = new mongoose.Schema({
     ref: 'Campaign',
     required: [true, 'Campaign is required']
   },
-  prize: { // Đảm bảo cấu trúc này khớp
-    id: { // ID của giải thưởng trong mảng prizes của Campaign
+  prize: {
+    id: {
       type: mongoose.Schema.Types.ObjectId,
       required: [true, 'Prize ID is required']
     },
@@ -25,12 +25,20 @@ const SpinResultSchema = new mongoose.Schema({
     image: {
       type: String,
       default: ''
+    },
+    color: {
+      type: String,
+      default: '#FF6384'
+    },
+    isWinner: {
+      type: Boolean,
+      required: true,
+      default: true
     }
   },
   phone: {
     type: String,
-    required: [true, 'Phone number is required'],
-    // ... validators ...
+    required: [true, 'Phone number is required']
   },
   guestName: {
     type: String,
@@ -40,10 +48,9 @@ const SpinResultSchema = new mongoose.Schema({
   isGuest: {
     type: Boolean,
     default: function() { return !this.user; }
-  },
-  // spinTime: { type: Date, default: Date.now }, // Bạn có thể dùng createdAt
+  }
 }, {
-  timestamps: true // Sẽ tự động thêm createdAt và updatedAt
+  timestamps: true
 });
 
 module.exports = mongoose.model('SpinResult', SpinResultSchema);
