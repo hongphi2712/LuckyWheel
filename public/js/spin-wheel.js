@@ -110,8 +110,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (outerBorder) {
       outerBorder.style.width = (radius * 2 + 30) + 'px';
       outerBorder.style.height = (radius * 2 + 30) + 'px';
-      outerBorder.style.left = (-15) + 'px';
-      outerBorder.style.top = (-15) + 'px';
     }
     
     // Draw ticker
@@ -120,7 +118,6 @@ document.addEventListener('DOMContentLoaded', function() {
       ticker.style.left = 'calc(50% )';
       ticker.style.width = '40px';
       ticker.style.height = '40px';
-      //lật ngược nó lại
       ticker.style.transform = 'translateX(-50%) rotate(180deg)';
     }
   }
